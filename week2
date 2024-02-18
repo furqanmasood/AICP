@@ -1,0 +1,105 @@
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+// Constants for cost calculation
+const int MIN_SENIORS = 10;
+const int MAX_SENIORS = 36;
+const int MIN_CARERS = 2;
+const int EXTRA_CARERS_THRESHOLD = 24;
+
+struct Person {
+    string name;
+    double amountPaid;
+};
+
+// Function to calculate the total cost of the outing
+double calculateTotalCost(int numSeniors) {
+    double cost = 0.0;
+    if (numSeniors >= 12 && numSeniors <= 16) {
+        cost += 150.0;
+        cost += 14.0 * numSeniors;
+        cost += 21.0 * numSeniors;
+    } else if (numSeniors >= 17 && numSeniors <= 26) {
+        cost += 190.0;
+        cost += 13.5 * numSeniors;
+        cost += 20.0 * numSeniors;
+    } else if (numSeniors >= 27 && numSeniors <= 39) {
+        cost += 225.0;
+        cost += 13.0 * numSeniors;
+        cost += 19.0 * numSeniors;
+    }
+    return cost;
+}
+
+// Function to record attendees and amounts paid
+void recordAttendees(vector<Person>& attendees, double& totalCollected, int numSeniors) {
+    string name;
+    double amountPaid;
+
+    cout << "Recording attendees: \n";
+    for (int i = 0; i < numSeniors; ++i) {
+        cout << "Enter name of senior citizen " << i + 1 << ": ";
+        cin >> name;
+        cout << "Enter amount paid by " << name << ": $";
+        cin >> amountPaid;
+        totalCollected += amountPaid;
+        attendees.push_back({name, amountPaid});
+    }
+
+    // Record carers
+    int numCarers = MIN_CARERS + (numSeniors > EXTRA_CARERS_THRESHOLD);
+    for (int i = 0; i < numCarers; ++i) {
+        cout << "Enter name of carer " << i + 1 << ": ";
+        cin >> name;
+        attendees.push_back({name, 0.0}); // Carers do not pay anything
+    }
+}
+
+// Function to display attendees and total collected amount
+void displayAttendees(const vector<Person>& attendees, double totalCollected) {
+    cout << "\nList of people on the outing:\n";
+    for (const auto& person : attendees) {
+        cout << person.name << "\tAmount Paid: $" << person.amountPaid << endl;
+    }
+    cout << "\nTotal amount collected: $" << totalCollected << endl;
+}
+
+// Function to calculate profit or break-even
+void calculateProfit(double totalCost, double totalCollected) {
+    double profit = totalCollected - totalCost;
+    if (profit >= 0) {
+        cout << "\nProfit made: $" << profit << endl;
+    } else {
+        cout << "\nLoss incurred: $" << -profit << endl;
+    }
+}
+
+int main() {
+    int numSeniors;
+    double totalCost, totalCollected = 0.0;
+    vector<Person> attendees;
+
+    // Task 1
+    cout << "Enter the number of senior citizens interested in the outing: ";
+    cin >> numSeniors;
+
+    if (numSeniors < MIN_SENIORS || numSeniors > MAX_SENIORS) {
+        cout << "Error: Number of senior citizens must be between " << MIN_SENIORS << " and " << MAX_SENIORS << endl;
+        return 1;
+    }
+
+    totalCost = calculateTotalCost(numSeniors);
+    cout << "Total cost of the outing: $" << totalCost << endl;
+
+    // Task 2
+    recordAttendees(attendees, totalCollected, numSeniors);
+
+    // Task 3
+    displayAttendees(attendees, totalCollected);
+    calculateProfit(totalCost, totalCollected);
+
+    return 0;
+}
