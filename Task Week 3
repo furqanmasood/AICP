@@ -1,0 +1,106 @@
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include <map>
+#include <cmath> // Include cmath header for round function
+
+using namespace std;
+
+const int DAYS_IN_WEEK = 7;
+const double MIN_DAILY_YIELD = 12.0;
+const int MIN_LOW_YIELD_DAYS = 4;
+
+struct Cow {
+    int id;
+    vector<double> yields;
+};
+
+// Task 1: Record the yield
+void recordYields(vector<Cow>& herd) {
+    cout << "Recording yields for the week...\n";
+    for (int i = 0; i < herd.size(); ++i) {
+        cout << "Enter yields for cow " << herd[i].id << ":\n";
+        for (int day = 0; day < DAYS_IN_WEEK * 2; ++day) {
+            double yield;
+            cout << "Day " << day / 2 + 1 << ", Milk " << (day % 2 == 0 ? "morning" : "evening") << " yield: ";
+            cin >> yield;
+            herd[i].yields.push_back(yield);
+        }
+    }
+}
+
+// Task 2: Calculate statistics
+void calculateStatistics(const vector<Cow>& herd) {
+    double totalVolume = 0.0;
+    int totalCows = herd.size();
+
+    for (const auto& cow : herd) {
+        for (double yield : cow.yields) {
+            totalVolume += yield;
+        }
+    }
+
+    double averageYieldPerCow = totalVolume / (totalCows * DAYS_IN_WEEK);
+    
+    cout << fixed << setprecision(0);
+    cout << "Total weekly volume of milk for the herd: " << round(totalVolume) << " litres\n";
+    cout << "Average yield per cow in a week: " << round(averageYieldPerCow) << " litres\n";
+}
+
+// Task 3: Identify the most productive cow and low-yield cows
+void identifyCows(const vector<Cow>& herd) {
+    double maxWeeklyYield = 0.0;
+    int mostProductiveCow = -1;
+
+    map<int, int> lowYieldDays; // Cow ID -> Count of low yield days
+
+    for (int i = 0; i < herd.size(); ++i) {
+        double weeklyYield = 0.0;
+        int lowYieldCount = 0;
+
+        for (int j = 0; j < DAYS_IN_WEEK * 2; ++j) {
+            if (herd[i].yields[j] < MIN_DAILY_YIELD) {
+                lowYieldCount++;
+            }
+            weeklyYield += herd[i].yields[j];
+        }
+
+        if (weeklyYield > maxWeeklyYield) {
+            maxWeeklyYield = weeklyYield;
+            mostProductiveCow = herd[i].id;
+        }
+
+        if (lowYieldCount >= MIN_LOW_YIELD_DAYS) {
+            lowYieldDays[herd[i].id] = lowYieldCount;
+        }
+    }
+
+    cout << "Most productive cow this week: Cow " << mostProductiveCow << " with a yield of " << round(maxWeeklyYield) << " litres\n";
+    
+    if (lowYieldDays.empty()) {
+        cout << "No cows produced less than " << MIN_DAILY_YIELD << " litres for four or more days this week.\n";
+    } else {
+        cout << "Cows producing less than " << MIN_DAILY_YIELD << " litres for four or more days this week:\n";
+        for (const auto& pair : lowYieldDays) {
+            cout << "Cow " << pair.first << " with " << pair.second << " low yield days.\n";
+        }
+    }
+}
+
+int main() {
+    int numCows;
+    cout << "Enter the number of cows in the herd: ";
+    cin >> numCows;
+
+    vector<Cow> herd(numCows);
+
+    for (int i = 0; i < numCows; ++i) {
+        herd[i].id = i + 1;
+    }
+
+    recordYields(herd);
+    calculateStatistics(herd);
+    identifyCows(herd);
+
+    return 0;
+}
