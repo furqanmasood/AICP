@@ -1,0 +1,112 @@
+import datetime
+
+# Ticket prices
+ticket_prices = {
+    "one day": {
+        "adult": 20.00,
+        "child": 12.00,
+        "senior": 16.00,
+        "family": 60.00,
+        "group": 15.00
+    },
+    "two days": {
+        "adult": 30.00,
+        "child": 18.00,
+        "senior": 24.00,
+        "family": 90.00,
+        "group": 22.50
+    }
+}
+
+# Extra attractions prices
+extra_attractions = {
+    "lion feeding": 2.50,
+    "penguin feeding": 2.00,
+    "evening barbecue": 5.00
+}
+
+# Display ticket options and extra attractions
+def display_options():
+    print("Ticket Options:")
+    for ticket_type, prices in ticket_prices.items():
+        print(f"\n{ticket_type.capitalize()} Ticket Prices:")
+        for category, price in prices.items():
+            print(f"{category.capitalize()}: ${price:.2f}")
+    print("\nExtra Attractions:")
+    for attraction, price in extra_attractions.items():
+        print(f"{attraction.capitalize()}: ${price:.2f}")
+
+# Get valid booking date
+def get_booking_date():
+    while True:
+        try:
+            date_input = input("Enter booking date (YYYY-MM-DD): ")
+            booking_date = datetime.datetime.strptime(date_input, "%Y-%m-%d").date()
+            if booking_date >= datetime.date.today():
+                return booking_date
+            else:
+                print("Booking date must be today or a future date.")
+        except ValueError:
+            print("Invalid date format. Please enter date in YYYY-MM-DD format.")
+
+# Process a booking
+def process_booking():
+    print("\nWelcome to the Wildlife Park Booking System!")
+    display_options()
+    booking_date = get_booking_date()
+    ticket_type = input("\nEnter ticket type (one day / two days): ").lower()
+    if ticket_type not in ticket_prices:
+        print("Invalid ticket type.")
+        return
+
+    ticket_quantities = {}
+    total_cost = 0.0
+
+    for category in ticket_prices[ticket_type]:
+        while True:
+            try:
+                quantity = int(input(f"Enter number of {category} tickets: "))
+                if quantity < 0:
+                    print("Invalid quantity. Please enter a positive number.")
+                else:
+                    ticket_quantities[category] = quantity
+                    total_cost += quantity * ticket_prices[ticket_type][category]
+                    break
+            except ValueError:
+                print("Invalid input. Please enter a valid number.")
+
+    extra_attraction_total = 0.0
+    extra_attractions_chosen = []
+    while True:
+        print("\nExtra Attractions Available:")
+        for attraction in extra_attractions:
+            print(attraction.capitalize())
+        attraction = input("Enter extra attraction (or leave blank to finish): ").lower()
+        if attraction == "":
+            break
+        elif attraction in extra_attractions:
+            extra_attraction_total += extra_attractions[attraction]
+            extra_attractions_chosen.append(attraction)
+        else:
+            print("Invalid attraction.")
+
+    total_cost += extra_attraction_total
+
+    print("\nBooking Summary:")
+    print(f"Booking Date: {booking_date}")
+    print(f"Ticket Type: {ticket_type.capitalize()}")
+    for category, quantity in ticket_quantities.items():
+        print(f"{category.capitalize()} Tickets: {quantity}")
+    if extra_attractions_chosen:
+        print("Extra Attractions:")
+        for attraction in extra_attractions_chosen:
+            print(f"- {attraction.capitalize()}")
+    print(f"Total Cost: ${total_cost:.2f}")
+    print("Thank you for booking with us!")
+
+# Main program loop
+while True:
+    process_booking()
+    another_booking = input("\nWould you like to make another booking? (yes/no): ").lower()
+    if another_booking != "yes":
+        break
